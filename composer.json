@@ -1,0 +1,13 @@
+{
+    "name": "scaleplan/dto",
+    "description": "DTO pattern implementation",
+    "autoload": {
+        "psr-4": {
+            "Scaleplan\\DTO\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=7.0",
+        "symfony/validator": "*"
+    }
+}
