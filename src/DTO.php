@@ -49,7 +49,7 @@ class DTO
             $msgErrors = [];
             foreach ($errors as $err) {
                 $msgErrors[] = [
-                    'field' => NameConverter::camelCaseToSnakeCase($err->getPropertyPath()),
+                    'field'   => NameConverter::camelCaseToSnakeCase($err->getPropertyPath()),
                     'message' => $err->getMessage(),
                 ];
             }
@@ -58,5 +58,18 @@ class DTO
         }
 
         return true;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray() : array
+    {
+        $rawArray = (array)$this;
+        $keys = array_map(function ($item) {
+            return trim(strtr($item, [__CLASS__ => '', '*' => '']));
+        }, array_keys($rawArray));
+
+        return array_combine($keys, $rawArray);
     }
 }
