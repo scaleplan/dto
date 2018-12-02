@@ -9,6 +9,6 @@
     "require": {
         "php": ">=7.0",
         "scaleplan/init-trait": "dev-master",
-        "symfony/validator": "*"
+        "scaleplan/symfony-validators": "*"
     }
 }
