@@ -8,7 +8,7 @@
     },
     "require": {
         "php": ">=7.0",
-        "scaleplan/init-trait": "*",
-        "scaleplan/symfony-validators": "*"
+        "scaleplan/init-trait": "dev-master",
+        "scaleplan/symfony-validators": "dev-master"
     }
 }
