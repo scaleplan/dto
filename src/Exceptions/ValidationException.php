@@ -12,13 +12,28 @@ class ValidationException extends \Exception
     public const MESSAGE = 'Validation error.';
 
     /**
+     * @var array
+     */
+    private $errors;
+
+    /**
      * ValidationException constructor.
      *
-     * @param string $message
-     * @param \Throwable|null $previous
+     * @param array $errors
+     * @param string|null $message
      */
-    public function __construct(string $message = "", \Throwable $previous = null)
+    public function __construct(array $errors = [], ?string $message = NULL)
     {
-        parent::__construct($message, 422, $previous);
+        $this->errors = $errors;
+
+        parent::__construct($message ?? $message ?? static::MESSAGE);
+    }
+
+    /**
+     * @return array
+     */
+    public function getErrors() : array
+    {
+        return $this->errors;
     }
 }

@@ -28,8 +28,6 @@ class DTO
      * DTO constructor.
      *
      * @param array $data
-     *
-     * @throws \ReflectionException
      */
     public function __construct(array $data)
     {
