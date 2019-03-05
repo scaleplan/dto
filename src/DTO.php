@@ -67,7 +67,7 @@ class DTO
     {
         $rawArray = (array)$this;
         $keys = array_map(function ($item) {
-            return trim(strtr($item, [__CLASS__ => '', '*' => '']));
+            return NameConverter::camelCaseToSnakeCase(trim(strtr($item, [__CLASS__ => '', '*' => ''])));
         }, array_keys($rawArray));
 
         return array_combine($keys, $rawArray);
