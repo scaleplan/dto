@@ -2,6 +2,7 @@
 
 namespace Scaleplan\DTO;
 
+use Doctrine\Common\Annotations\AnnotationRegistry;
 use Scaleplan\DTO\Exceptions\ValidationException;
 use Scaleplan\Helpers\NameConverter;
 use Scaleplan\InitTrait\InitTrait;
@@ -32,19 +33,35 @@ class DTO
     public function __construct(array $data)
     {
         $this->initObject($data);
-
-        $this->validator = Validation::createValidator();
     }
 
     /**
-     * @return bool
+     * @return ValidatorInterface
+     */
+    protected function getValidator() : ValidatorInterface
+    {
+        static $validator;
+        if ($validator) {
+            AnnotationRegistry::registerLoader('class_exists');
+
+            $validator = Validation::createValidatorBuilder()
+                ->enableAnnotationMapping()
+                ->getValidator();
+        }
+
+        return $validator;
+    }
+
+
+    /**
+     * @param array|null $groups
      *
      * @throws ValidationException
      */
-    public function validate()
+    public function validate(array $groups = null) : void
     {
         /** @var ConstraintViolationList|ConstraintViolation[] $errors */
-        $errors = $this->validator->validate($this);
+        $errors = $this->validator->validate($this, null, $groups);
         if (count($errors) > 0) {
             $msgErrors = [];
             foreach ($errors as $err) {
@@ -56,8 +73,6 @@ class DTO
 
             throw new ValidationException($msgErrors);
         }
-
-        return true;
     }
 
     /**
