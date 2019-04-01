@@ -7,7 +7,7 @@ namespace Scaleplan\DTO\Exceptions;
  *
  * @package Scaleplan\DTO\Exceptions
  */
-class ValidationException extends \Exception
+class ValidationException extends DTOException
 {
     public const MESSAGE = 'Validation error.';
 

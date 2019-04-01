@@ -80,9 +80,30 @@ class DTO
      */
     public function toArray() : array
     {
+        return $this->toSnakeArray();
+    }
+
+    /**
+     * @return array
+     */
+    public function toSnakeArray() : array
+    {
         $rawArray = (array)$this;
         $keys = array_map(function ($item) {
             return NameConverter::camelCaseToSnakeCase(trim(strtr($item, [__CLASS__ => '', '*' => ''])));
+        }, array_keys($rawArray));
+
+        return array_combine($keys, $rawArray);
+    }
+
+    /**
+     * @return array
+     */
+    public function toCamelArray() : array
+    {
+        $rawArray = (array)$this;
+        $keys = array_map(function ($item) {
+            return NameConverter::snakeCaseToLowerCamelCase(trim(strtr($item, [__CLASS__ => '', '*' => ''])));
         }, array_keys($rawArray));
 
         return array_combine($keys, $rawArray);
