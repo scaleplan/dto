@@ -5,7 +5,6 @@ namespace Scaleplan\DTO;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Scaleplan\DTO\Exceptions\ValidationException;
 use Scaleplan\Helpers\NameConverter;
-use Scaleplan\InitTrait\InitTrait;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
@@ -18,12 +17,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class DTO
 {
-    use InitTrait;
-
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
+    private $attributes = [];
 
     /**
      * DTO constructor.
@@ -32,7 +26,34 @@ class DTO
      */
     public function __construct(array $data)
     {
-        $this->initObject($data);
+        foreach ($data as $name => &$value) {
+            $propertyName = null;
+            if (property_exists($this, $name)) {
+                $propertyName = $name;
+            }
+
+            if ($propertyName === null
+                && property_exists($this, NameConverter::snakeCaseToLowerCamelCase($name))) {
+                $propertyName = NameConverter::snakeCaseToLowerCamelCase($name);
+            }
+
+            if (!$propertyName) {
+                continue;
+            }
+
+            $this->attributes[] = $propertyName;
+
+            $methodName = 'set' . ucfirst($propertyName);
+            if (is_callable([$this, $methodName])) {
+                $this->{$methodName}($value);
+                continue;
+            }
+
+            if (array_key_exists($propertyName, get_object_vars($this))) {
+                $this->{$propertyName} = $value;
+            }
+        }
+        unset($value);
     }
 
     /**
@@ -41,7 +62,7 @@ class DTO
     protected function getValidator() : ValidatorInterface
     {
         static $validator;
-        if ($validator) {
+        if (!$validator) {
             AnnotationRegistry::registerLoader('class_exists');
 
             $validator = Validation::createValidatorBuilder()
@@ -52,7 +73,6 @@ class DTO
         return $validator;
     }
 
-
     /**
      * @param array|null $groups
      *
@@ -61,7 +81,7 @@ class DTO
     public function validate(array $groups = null) : void
     {
         /** @var ConstraintViolationList|ConstraintViolation[] $errors */
-        $errors = $this->validator->validate($this, null, $groups);
+        $errors = $this->getValidator()->validate($this, null, $groups);
         if (count($errors) > 0) {
             $msgErrors = [];
             foreach ($errors as $err) {
@@ -80,7 +100,24 @@ class DTO
      */
     public function toArray() : array
     {
-        return $this->toSnakeArray();
+        return $this->getRawArray();
+    }
+
+    /**
+     * @return array
+     */
+    protected function getRawArray() : array
+    {
+        $rawArray = (array)$this;
+        foreach ($rawArray as $key => $value) {
+            $newKey = trim(strtr($key, [static::class => '', '*' => '', DTO::class => '']));
+            unset($rawArray[$key]);
+            if (null !== $value || \in_array($newKey, $this->attributes, true)) {
+                $rawArray[$newKey] = $value;
+            }
+        }
+
+        return array_diff_key($rawArray, get_object_vars($this));
     }
 
     /**
@@ -88,9 +125,9 @@ class DTO
      */
     public function toSnakeArray() : array
     {
-        $rawArray = (array)$this;
-        $keys = array_map(function ($item) {
-            return NameConverter::camelCaseToSnakeCase(trim(strtr($item, [__CLASS__ => '', '*' => ''])));
+        $rawArray = $this->getRawArray();
+        $keys = array_map(static function ($item) {
+            return NameConverter::camelCaseToSnakeCase($item);
         }, array_keys($rawArray));
 
         return array_combine($keys, $rawArray);
@@ -101,9 +138,9 @@ class DTO
      */
     public function toCamelArray() : array
     {
-        $rawArray = (array)$this;
-        $keys = array_map(function ($item) {
-            return NameConverter::snakeCaseToLowerCamelCase(trim(strtr($item, [__CLASS__ => '', '*' => ''])));
+        $rawArray = $this->getRawArray();
+        $keys = array_map(static function ($item) {
+            return NameConverter::snakeCaseToLowerCamelCase($item);
         }, array_keys($rawArray));
 
         return array_combine($keys, $rawArray);
