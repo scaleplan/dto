@@ -10,6 +10,7 @@ namespace Scaleplan\DTO\Exceptions;
 class ValidationException extends DTOException
 {
     public const MESSAGE = 'Validation error.';
+    public const CODE = 422;
 
     /**
      * @var array
@@ -21,12 +22,13 @@ class ValidationException extends DTOException
      *
      * @param array $errors
      * @param string|null $message
+     * @param int $code
      */
-    public function __construct(array $errors = [], ?string $message = NULL)
+    public function __construct(array $errors = [], ?string $message = NULL, int $code = 0)
     {
         $this->errors = $errors;
 
-        parent::__construct($message ?? static::MESSAGE);
+        parent::__construct($message ?? static::MESSAGE, $code ?: static::CODE);
     }
 
     /**

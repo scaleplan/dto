@@ -110,7 +110,7 @@ class DTO
     {
         $rawArray = (array)$this;
         foreach ($rawArray as $key => $value) {
-            $newKey = trim(strtr($key, [static::class => '', '*' => '', DTO::class => '']));
+            $newKey = trim(strtr($key, [static::class => '', '*' => '', __CLASS__ => '']));
             unset($rawArray[$key]);
             if (null !== $value || \in_array($newKey, $this->attributes, true)) {
                 $rawArray[$newKey] = $value;
