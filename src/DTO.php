@@ -100,20 +100,10 @@ class DTO
      */
     public function toArray() : array
     {
-        return $this->getRawArray();
-    }
-
-    /**
-     * @return array
-     */
-    protected function getRawArray() : array
-    {
-        $rawArray = (array)$this;
+        $rawArray = $this->toFullArray();
         foreach ($rawArray as $key => $value) {
-            $newKey = trim(strtr($key, [static::class => '', '*' => '', __CLASS__ => '']));
-            unset($rawArray[$key]);
-            if (null !== $value || \in_array($newKey, $this->attributes, true)) {
-                $rawArray[$newKey] = $value;
+            if (null === $value && !\in_array($key, $this->attributes, true)) {
+                unset($rawArray[$key]);
             }
         }
 
@@ -123,9 +113,23 @@ class DTO
     /**
      * @return array
      */
-    public function toSnakeArray() : array
+    public function toFullArray() : array
     {
-        $rawArray = $this->getRawArray();
+        $rawArray = (array)$this;
+        $keys = array_map(static function ($key) {
+            return trim(strtr($key, [static::class => '', '*' => '', __CLASS__ => '']));
+        }, array_keys($rawArray));
+
+        return array_combine($keys, $rawArray);
+    }
+
+    /**
+     * @param array $rawArray
+     *
+     * @return array
+     */
+    protected static function getSnakeArray(array $rawArray) : array
+    {
         $keys = array_map(static function ($item) {
             return NameConverter::camelCaseToSnakeCase($item);
         }, array_keys($rawArray));
@@ -134,15 +138,48 @@ class DTO
     }
 
     /**
+     * @param array $rawArray
+     *
+     * @return array
+     */
+    protected static function getCamelArray(array $rawArray) : array
+    {
+        $keys = array_map(static function ($key) {
+            return NameConverter::snakeCaseToLowerCamelCase($key);
+        }, array_keys($rawArray));
+
+        return array_combine($keys, $rawArray);
+    }
+
+    /**
+     * @return array
+     */
+    public function toFullSnakeArray() : array
+    {
+        return static::getSnakeArray($this->toFullArray());
+    }
+
+    /**
+     * @return array
+     */
+    public function toFullCamelArray() : array
+    {
+        return static::getCamelArray($this->toFullArray());
+    }
+
+    /**
+     * @return array
+     */
+    public function toSnakeArray() : array
+    {
+        return static::getSnakeArray($this->toArray());
+    }
+
+    /**
      * @return array
      */
     public function toCamelArray() : array
     {
-        $rawArray = $this->getRawArray();
-        $keys = array_map(static function ($item) {
-            return NameConverter::snakeCaseToLowerCamelCase($item);
-        }, array_keys($rawArray));
-
-        return array_combine($keys, $rawArray);
+        return static::getCamelArray($this->toArray());
     }
 }
