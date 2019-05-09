@@ -28,12 +28,12 @@ class DTO
     {
         foreach ($data as $name => &$value) {
             $propertyName = null;
-            if (property_exists($this, $name)) {
+            if (\array_key_exists($name, $this->toFullArray())) {
                 $propertyName = $name;
             }
 
             if ($propertyName === null
-                && property_exists($this, NameConverter::snakeCaseToLowerCamelCase($name))) {
+                && \array_key_exists(NameConverter::snakeCaseToLowerCamelCase($name), $this->toFullCamelArray())) {
                 $propertyName = NameConverter::snakeCaseToLowerCamelCase($name);
             }
 
@@ -117,7 +117,11 @@ class DTO
     {
         $rawArray = (array)$this;
         $keys = array_map(static function ($key) {
-            return trim(strtr($key, [static::class => '', '*' => '', __CLASS__ => '']));
+            $replaces = [static::class => '', '*' => ''];
+            foreach (class_parents(static::class) as $parent) {
+                $replaces[$parent] = '';
+            }
+            return trim(strtr($key, $replaces));
         }, array_keys($rawArray));
 
         return array_combine($keys, $rawArray);
