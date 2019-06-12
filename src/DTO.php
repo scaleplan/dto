@@ -3,6 +3,7 @@
 namespace Scaleplan\DTO;
 
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Scaleplan\DTO\Exceptions\PropertyNotFoundException;
 use Scaleplan\DTO\Exceptions\ValidationException;
 use Scaleplan\Helpers\NameConverter;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -185,5 +186,34 @@ class DTO
     public function toCamelArray() : array
     {
         return static::getCamelArray($this->toArray());
+    }
+
+
+    /**
+     * @param string $name
+     * @param array $args
+     *
+     * @return mixed|null
+     *
+     * @throws PropertyNotFoundException
+     */
+    public function __call(string $name, array $args)
+    {
+        $attributeName = str_replace('get', '', $name);
+        if (strpos($name, 'get') !== 0) {
+            throw new PropertyNotFoundException("Property $attributeName not found");
+        }
+
+        $planeAttributeName = lcfirst($attributeName);
+        $snakeAttributeName = NameConverter::camelCaseToSnakeCase($attributeName);
+        if (array_key_exists($planeAttributeName, $this->attributes)) {
+            return $this->attributes[$planeAttributeName];
+        }
+
+        if (array_key_exists($snakeAttributeName, $this->attributes)) {
+            return $this->attributes[$snakeAttributeName];
+        }
+
+        return null;
     }
 }
