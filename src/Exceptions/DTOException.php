@@ -10,6 +10,7 @@ namespace Scaleplan\DTO\Exceptions;
 class DTOException extends \Exception
 {
     public const MESSAGE = 'DTO error.';
+    public const CODE = 500;
 
     /**
      * DTOException constructor.
@@ -20,6 +21,6 @@ class DTOException extends \Exception
      */
     public function __construct(string $message = '', int $code = 0, \Throwable $previous = null)
     {
-        parent::__construct($message ?: static::MESSAGE, $code, $previous);
+        parent::__construct($message ?: static::MESSAGE, $code ?: static::CODE, $previous);
     }
 }

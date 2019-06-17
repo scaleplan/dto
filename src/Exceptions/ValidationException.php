@@ -21,14 +21,14 @@ class ValidationException extends DTOException
      * ValidationException constructor.
      *
      * @param array $errors
-     * @param string|null $message
+     * @param string $message
      * @param int $code
      */
-    public function __construct(array $errors = [], ?string $message = NULL, int $code = 0)
+    public function __construct(array $errors = [], ?string $message = '', int $code = 0)
     {
         $this->errors = $errors;
 
-        parent::__construct($message ?? static::MESSAGE, $code ?: static::CODE);
+        parent::__construct($message ?: static::MESSAGE, $code ?: static::CODE);
     }
 
     /**
