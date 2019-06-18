@@ -25,7 +25,7 @@ class DTO
      *
      * @param array $data
      */
-    public function __construct(array $data)
+    public function __construct(array $data = [])
     {
         foreach ($data as $name => &$value) {
             $propertyName = null;
@@ -125,7 +125,13 @@ class DTO
             return trim(strtr($key, $replaces));
         }, array_keys($rawArray));
 
-        return array_combine($keys, $rawArray);
+        $array = [];
+        foreach ($keys as $index => $property) {
+            $methodName = 'get' . ucfirst($property);
+            $array[$property] = is_callable([$this, $methodName]) ? $this->$methodName() : $rawArray[$index];
+        }
+
+        return $array;
     }
 
     /**
