@@ -117,18 +117,23 @@ class DTO
     public function toFullArray() : array
     {
         $rawArray = (array)$this;
-        $keys = array_map(static function ($key) {
-            $replaces = [static::class => '', '*' => ''];
-            foreach (class_parents(static::class) as $parent) {
-                $replaces[$parent] = '';
-            }
-            return trim(strtr($key, $replaces));
-        }, array_keys($rawArray));
+        $replaces = [static::class => '', '*' => ''];
+        foreach (class_parents(static::class) as $parent) {
+            $replaces[$parent] = '';
+        }
+
+        foreach ($rawArray as $key => $value) {
+            $newKey = trim(strtr($key, $replaces));
+            $rawArray[$newKey] = $value;
+            unset($rawArray[$key]);
+        }
+
+        unset($rawArray['attributes']);
 
         $array = [];
-        foreach ($keys as $index => $property) {
+        foreach ($rawArray as $property => $value) {
             $methodName = 'get' . ucfirst($property);
-            $array[$property] = is_callable([$this, $methodName]) ? $this->$methodName() : $rawArray[$index];
+            $array[$property] = is_callable([$this, $methodName]) ? $this->$methodName() : $value;
         }
 
         return $array;
