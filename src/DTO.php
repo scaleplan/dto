@@ -3,6 +3,7 @@
 namespace Scaleplan\DTO;
 
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Scaleplan\DTO\Exceptions\MethodNotFoundException;
 use Scaleplan\DTO\Exceptions\PropertyNotFoundException;
 use Scaleplan\DTO\Exceptions\ValidationException;
 use Scaleplan\Helpers\NameConverter;
@@ -18,7 +19,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class DTO
 {
-    private $attributes = [];
+    /**
+     * @var array
+     */
+    protected $attributes = [];
 
     /**
      * DTO constructor.
@@ -45,12 +49,12 @@ class DTO
             $this->attributes[] = $propertyName;
 
             $methodName = 'set' . ucfirst($propertyName);
-            if (is_callable([$this, $methodName])) {
+            if (\is_callable([$this, $methodName])) {
                 $this->{$methodName}($value);
                 continue;
             }
 
-            if (array_key_exists($propertyName, get_object_vars($this))) {
+            if (property_exists($this, $propertyName)) {
                 $this->{$propertyName} = $value;
             }
         }
@@ -108,7 +112,7 @@ class DTO
             }
         }
 
-        return array_diff_key($rawArray, get_object_vars($this));
+        return $rawArray;
     }
 
     /**
@@ -199,32 +203,61 @@ class DTO
         return static::getCamelArray($this->toArray());
     }
 
-
     /**
      * @param string $name
-     * @param array $args
-     *
-     * @return mixed|null
+     * @param $value
      *
      * @throws PropertyNotFoundException
      */
-    public function __call(string $name, array $args)
+    protected function set(string $name, $value) : void
     {
-        $attributeName = str_replace('get', '', $name);
-        if (strpos($name, 'get') !== 0) {
-            throw new PropertyNotFoundException("Property $attributeName not found");
+        if (property_exists($this, $name)) {
+            $this->$name = $value;
+            $this->attributes[] = $name;
+            return;
         }
 
-        $planeAttributeName = lcfirst($attributeName);
-        $snakeAttributeName = NameConverter::camelCaseToSnakeCase($attributeName);
-        if (array_key_exists($planeAttributeName, $this->attributes)) {
-            return $this->attributes[$planeAttributeName];
+        throw new PropertyNotFoundException("Property $name not found");
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     *
+     * @throws PropertyNotFoundException
+     */
+    protected function get(string $name)
+    {
+        if (property_exists($this, $name)) {
+            return $this->{$name};
         }
 
-        if (array_key_exists($snakeAttributeName, $this->attributes)) {
-            return $this->attributes[$snakeAttributeName];
+        throw new PropertyNotFoundException("Property $name not found");
+    }
+
+    /**
+     * @param string $methodName
+     * @param array $args
+     *
+     * @return mixed
+     *
+     * @throws MethodNotFoundException
+     * @throws PropertyNotFoundException
+     */
+    public function __call(string $methodName, array $args)
+    {
+        if (strpos($methodName, 'get') === 0) {
+            $name = lcfirst(str_replace('get', '', $methodName));
+            return $this->get($name);
         }
 
-        return null;
+        if (strpos($methodName, 'set') === 0) {
+            $name = lcfirst(str_replace('set', '', $methodName));
+            $this->set($name, $value = $args[0]);
+            return true;
+        }
+
+        throw new MethodNotFoundException("Method $methodName not found");
     }
 }
