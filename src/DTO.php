@@ -260,4 +260,14 @@ class DTO
 
         throw new MethodNotFoundException("Method $methodName not found");
     }
+
+    /**
+     * @param $name
+     *
+     * @return bool
+     */
+    public function __isset($name)
+    {
+        return property_exists($this, $name);
+    }
 }
