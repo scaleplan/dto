@@ -262,6 +262,14 @@ class DTO
     }
 
     /**
+     * @param string $propertyName
+     */
+    public function removeProperty(string $propertyName) : void
+    {
+        unset($this->$propertyName);
+    }
+
+    /**
      * @param $name
      *
      * @return bool
