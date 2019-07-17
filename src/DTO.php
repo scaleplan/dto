@@ -107,7 +107,7 @@ class DTO
     {
         $rawArray = $this->toFullArray();
         foreach ($rawArray as $key => $value) {
-            if (null === $value && !\in_array($key, $this->attributes, true)) {
+            if (!\in_array($key, $this->attributes, true)) {
                 unset($rawArray[$key]);
             }
         }
