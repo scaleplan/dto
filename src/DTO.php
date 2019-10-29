@@ -217,7 +217,7 @@ class DTO
             return;
         }
 
-        throw new PropertyNotFoundException("Property $name not found");
+        throw new PropertyNotFoundException($name);
     }
 
     /**
