@@ -233,7 +233,7 @@ class DTO
             return $this->{$name};
         }
 
-        throw new PropertyNotFoundException("Property $name not found");
+        throw new PropertyNotFoundException($name);
     }
 
     /**
