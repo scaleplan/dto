@@ -63,6 +63,8 @@ class DTO
 
     /**
      * @return ValidatorInterface
+     * @throws \Symfony\Component\Validator\Exception\LogicException
+     * @throws \Symfony\Component\Validator\Exception\ValidatorException
      */
     protected function getValidator() : ValidatorInterface
     {
@@ -82,6 +84,8 @@ class DTO
      * @param array|null $groups
      *
      * @throws ValidationException
+     * @throws \Symfony\Component\Validator\Exception\LogicException
+     * @throws \Symfony\Component\Validator\Exception\ValidatorException
      */
     public function validate(array $groups = null) : void
     {
