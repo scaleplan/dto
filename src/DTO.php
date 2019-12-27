@@ -1,9 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace Scaleplan\DTO;
 
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Scaleplan\DTO\Exceptions\MethodNotFoundException;
+use Scaleplan\DTO\Exceptions\OnlyGettersSupportingException;
 use Scaleplan\DTO\Exceptions\PropertyNotFoundException;
 use Scaleplan\DTO\Exceptions\ValidationException;
 use Scaleplan\Helpers\NameConverter;
@@ -23,6 +25,11 @@ class DTO
      * @var array
      */
     protected $attributes = [];
+
+    /**
+     * @var bool
+     */
+    protected $allowMagicSet = true;
 
     /**
      * DTO constructor.
@@ -244,9 +251,10 @@ class DTO
      * @param string $methodName
      * @param array $args
      *
-     * @return mixed
+     * @return bool|mixed
      *
      * @throws MethodNotFoundException
+     * @throws OnlyGettersSupportingException
      * @throws PropertyNotFoundException
      */
     public function __call(string $methodName, array $args)
@@ -257,6 +265,10 @@ class DTO
         }
 
         if (strpos($methodName, 'set') === 0) {
+            if (!$this->allowMagicSet) {
+                throw new OnlyGettersSupportingException();
+            }
+
             $name = lcfirst(str_replace('set', '', $methodName));
             $this->set($name, $value = $args[0]);
             return true;
