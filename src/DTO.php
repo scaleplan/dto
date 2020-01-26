@@ -45,8 +45,13 @@ class DTO
             }
 
             if ($propertyName === null
-                && \array_key_exists(NameConverter::snakeCaseToLowerCamelCase($name), $this->toFullCamelArray())) {
+                && \array_key_exists(NameConverter::snakeCaseToLowerCamelCase($name), $this->toFullArray())) {
                 $propertyName = NameConverter::snakeCaseToLowerCamelCase($name);
+            }
+
+            if ($propertyName === null
+                && \array_key_exists(NameConverter::snakeCaseToCamelCase($name), $this->toFullArray())) {
+                $propertyName = NameConverter::snakeCaseToCamelCase($name);
             }
 
             if (!$propertyName) {
@@ -56,7 +61,7 @@ class DTO
             $this->attributes[] = $propertyName;
 
             $methodName = 'set' . ucfirst($propertyName);
-            if (\is_callable([$this, $methodName])) {
+            if (method_exists($this, $methodName)) {
                 $this->{$methodName}($value);
                 continue;
             }
