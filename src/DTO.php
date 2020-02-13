@@ -152,6 +152,12 @@ class DTO
 
         $array = [];
         foreach ($rawArray as $property => $value) {
+            $methodName = ucfirst($property);
+            if (method_exists($this, $methodName)) {
+                $array[$property] = $this->$methodName();
+                continue;
+            }
+
             $methodName = 'get' . ucfirst($property);
             $array[$property] = is_callable([$this, $methodName]) ? $this->$methodName() : $value;
         }
