@@ -148,7 +148,7 @@ class DTO
             unset($rawArray[$key]);
         }
 
-        unset($rawArray['attributes']);
+        unset($rawArray['attributes'], $rawArray['allowMagicSet']);
 
         $array = [];
         foreach ($rawArray as $property => $value) {
