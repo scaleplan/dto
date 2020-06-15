@@ -285,7 +285,7 @@ class DTO
             return true;
         }
 
-        throw new MethodNotFoundException("Method $methodName not found");
+        throw new MethodNotFoundException("Метод $methodName не найден.");
     }
 
     /**

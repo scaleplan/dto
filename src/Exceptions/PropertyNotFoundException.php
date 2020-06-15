@@ -9,7 +9,7 @@ namespace Scaleplan\DTO\Exceptions;
  */
 class PropertyNotFoundException extends DTOException
 {
-    public const MESSAGE = 'Property :property not found.';
+    public const MESSAGE = 'Свойство :property не найдено.';
     public const CODE = 404;
 
     /**

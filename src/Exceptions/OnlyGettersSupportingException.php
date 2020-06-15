@@ -10,6 +10,6 @@ namespace Scaleplan\DTO\Exceptions;
  */
 class OnlyGettersSupportingException extends DTOException
 {
-    public const MESSAGE = 'Only getters supporting.';
+    public const MESSAGE = 'Поддерживаются только геттеры.';
     public const CODE = 406;
 }

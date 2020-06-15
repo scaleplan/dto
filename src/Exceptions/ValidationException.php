@@ -9,7 +9,7 @@ namespace Scaleplan\DTO\Exceptions;
  */
 class ValidationException extends DTOException
 {
-    public const MESSAGE = 'Validation error.';
+    public const MESSAGE = 'Ошибка валидации.';
     public const CODE = 422;
 
     /**

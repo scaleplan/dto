@@ -9,5 +9,5 @@ namespace Scaleplan\DTO\Exceptions;
  */
 class MethodNotFoundException extends DTOException
 {
-    public const MESSAGE = 'Method not found.';
+    public const MESSAGE = 'Метод не найден.';
 }

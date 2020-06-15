@@ -9,7 +9,7 @@ namespace Scaleplan\DTO\Exceptions;
  */
 class DTOException extends \Exception
 {
-    public const MESSAGE = 'DTO error.';
+    public const MESSAGE = 'Ошибка DTO.';
     public const CODE = 500;
 
     /**
