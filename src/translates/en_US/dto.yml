@@ -1,0 +1,5 @@
+dto-error: DTO error.
+method-not-found: Method not found.
+only-getters-supported: Only getters supported.
+property-not-found: Property :property not found.
+validation-error: Validation error.

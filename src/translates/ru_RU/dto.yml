@@ -1,0 +1,5 @@
+dto-error: Ошибка DTO.
+method-not-found: Метод не найден.
+only-getters-supported: Поддерживаются только геттеры.
+property-not-found: Свойство :property не найдено.
+validation-error: Ошибка валидации.
