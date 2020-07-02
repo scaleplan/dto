@@ -134,7 +134,7 @@ class DTO
     /**
      * @return array
      */
-    public function toFullArray() : array
+    protected function getFullArrayKeys() : array
     {
         $rawArray = (array)$this;
         $replaces = [static::class => '', '*' => ''];
@@ -142,11 +142,20 @@ class DTO
             $replaces[$parent] = '';
         }
 
+        $keysArray = [];
         foreach ($rawArray as $key => $value) {
-            $newKey = trim(strtr($key, $replaces));
-            $rawArray[$newKey] = $value;
-            unset($rawArray[$key]);
+            $keysArray[] = trim(strtr($key, $replaces));
         }
+
+        return $keysArray;
+    }
+
+    /**
+     * @return array
+     */
+    public function toFullArray() : array
+    {
+        $rawArray = array_combine($this->getFullArrayKeys(), (array)$this);
 
         unset($rawArray['attributes'], $rawArray['allowMagicSet']);
 
@@ -246,16 +255,15 @@ class DTO
      * @param string $name
      *
      * @return mixed
-     *
-     * @throws PropertyNotFoundException
      */
     protected function get(string $name)
     {
-        if (property_exists($this, $name)) {
+        if (in_array($name, $this->getFullArrayKeys(), true) !== false) {
             return $this->{$name};
         }
 
-        throw new PropertyNotFoundException($name);
+        //throw new PropertyNotFoundException($name);
+        return null;
     }
 
     /**
@@ -293,7 +301,13 @@ class DTO
      */
     public function removeProperty(string $propertyName) : void
     {
-        unset($this->$propertyName);
+        if (in_array($propertyName, $this->getFullArrayKeys(), true) !== false) {
+            unset($this->$propertyName);
+        }
+
+        if (($key = array_search($propertyName, $this->attributes, true)) !== false) {
+            unset($this->attributes[$key]);
+        }
     }
 
     /**
@@ -303,6 +317,6 @@ class DTO
      */
     public function __isset($name)
     {
-        return property_exists($this, $name);
+        return $this->toFullArray()[$name];
     }
 }
